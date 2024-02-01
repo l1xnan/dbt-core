@@ -54,3 +54,8 @@ class RunHookType(StrEnum):
 class ModelLanguage(StrEnum):
     python = "python"
     sql = "sql"
+
+
+class ModelHookType(StrEnum):
+    PreHook = "pre-hook"
+    PostHook = "post-hook"

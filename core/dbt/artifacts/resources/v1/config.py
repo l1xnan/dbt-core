@@ -8,10 +8,14 @@ from dbt_common.contracts.config.base import (
 )
 from dbt_common.contracts.config.metadata import Metadata, ShowBehavior
 from dbt_common.contracts.config.materialization import OnConfigurationChangeOption
-from dbt.contracts.util import list_str
 from dbt.artifacts.resources.v1.components import Docs
+from dbt.artifacts.resources.types import ModelHookType
 from dbt.contracts.graph.utils import validate_color
 from dbt import hooks
+
+
+def list_str() -> List[str]:
+    return []
 
 
 def metas(*metas: Metadata) -> Dict[str, Any]:
@@ -138,7 +142,7 @@ class NodeConfig(NodeAndTestConfig):
     @classmethod
     def __pre_deserialize__(cls, data):
         data = super().__pre_deserialize__(data)
-        for key in hooks.ModelHookType:
+        for key in ModelHookType:
             if key in data:
                 data[key] = [hooks.get_hook_dict(h) for h in data[key]]
         return data

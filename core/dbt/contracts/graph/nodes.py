@@ -65,7 +65,6 @@ from dbt.node_types import (
 )
 
 from .model_config import (
-    NodeConfig,
     ModelConfig,
     SeedConfig,
     TestConfig,
@@ -95,6 +94,7 @@ from dbt.artifacts.resources import (
     ParsedNodeMandatory as ParsedNodeMandatoryResource,
     HasRelationMetadata,
     FileHash,
+    NodeConfig,
 )
 
 # =====================================================================

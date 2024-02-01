@@ -56,3 +56,8 @@ from dbt.artifacts.resources.v1.semantic_model import (
     SemanticModel,
     SemanticModelConfig,
 )
+
+from dbt.artifacts.resources.v1.config import (
+    NodeAndTestConfig,
+    NodeConfig,
+)
