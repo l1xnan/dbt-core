@@ -1,4 +1,4 @@
-from dbt.artifacts.resources.base import BaseResource, GraphResource, FileHash
+from dbt.artifacts.resources.base import BaseResource, GraphResource, FileHash, Docs
 
 # alias to latest resource definitions
 from dbt.artifacts.resources.v1.components import (
@@ -7,7 +7,6 @@ from dbt.artifacts.resources.v1.components import (
     RefArgs,
     HasRelationMetadata,
     ParsedNodeMandatory,
-    Docs,
 )
 from dbt.artifacts.resources.v1.documentation import Documentation
 from dbt.artifacts.resources.v1.exposure import (

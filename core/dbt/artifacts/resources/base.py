@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from dbt_common.dataclass_schema import dbtClassMixin
 from dbt_common.contracts.util import Replaceable
-from typing import List
+from typing import List, Optional
 import hashlib
 
 from dbt.artifacts.resources.types import NodeType
@@ -60,3 +60,9 @@ class FileHash(dbtClassMixin):
         data = contents.encode("utf-8")
         checksum = hashlib.new(name, data).hexdigest()
         return cls(name=name, checksum=checksum)
+
+
+@dataclass
+class Docs(dbtClassMixin):
+    show: bool = True
+    node_color: Optional[str] = None

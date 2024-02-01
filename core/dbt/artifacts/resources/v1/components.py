@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from dbt.artifacts.resources.v1.macro import MacroDependsOn
 from dbt.artifacts.resources.base import GraphResource, FileHash
 from dbt.artifacts.resources.v1.config import NodeConfig
 from dbt_common.dataclass_schema import dbtClassMixin
@@ -7,6 +6,16 @@ from typing import Dict, List, Optional, Union
 
 
 NodeVersion = Union[str, float]
+
+
+@dataclass
+class MacroDependsOn(dbtClassMixin):
+    macros: List[str] = field(default_factory=list)
+
+    # 'in' on lists is O(n) so this is O(n^2) for # of macros
+    def add_macro(self, value: str):
+        if value not in self.macros:
+            self.macros.append(value)
 
 
 @dataclass
@@ -37,12 +46,6 @@ class RefArgs(dbtClassMixin):
             return {"version": self.version}
         else:
             return {}
-
-
-@dataclass
-class Docs(dbtClassMixin):
-    show: bool = True
-    node_color: Optional[str] = None
 
 
 @dataclass

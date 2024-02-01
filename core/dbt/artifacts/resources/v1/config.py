@@ -8,7 +8,7 @@ from dbt_common.contracts.config.base import (
 )
 from dbt_common.contracts.config.metadata import Metadata, ShowBehavior
 from dbt_common.contracts.config.materialization import OnConfigurationChangeOption
-from dbt.artifacts.resources.v1.components import Docs
+from dbt.artifacts.resources.base import Docs
 from dbt.artifacts.resources.types import ModelHookType
 from dbt.contracts.graph.utils import validate_color
 from dbt import hooks
