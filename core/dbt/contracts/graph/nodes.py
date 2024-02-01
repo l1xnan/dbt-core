@@ -29,7 +29,6 @@ from dbt_common.contracts.constraints import (
 from dbt_common.dataclass_schema import dbtClassMixin, ExtensibleDbtClassMixin
 
 from dbt_common.clients.system import write_file
-from dbt.contracts.files import FileHash
 from dbt.contracts.graph.unparsed import (
     ExternalTable,
     FreshnessThreshold,
@@ -93,6 +92,9 @@ from dbt.artifacts.resources import (
     RefArgs as RefArgsResource,
     SavedQuery as SavedQueryResource,
     SemanticModel as SemanticModelResource,
+    ParsedNodeMandatory as ParsedNodeMandatoryResource,
+    HasRelationMetadata,
+    FileHash,
 )
 
 # =====================================================================
@@ -197,29 +199,6 @@ class Contract(dbtClassMixin, Replaceable):
 
 # Metrics, exposures,
 @dataclass
-class HasRelationMetadata(dbtClassMixin, Replaceable):
-    database: Optional[str]
-    schema: str
-
-    # Can't set database to None like it ought to be
-    # because it messes up the subclasses and default parameters
-    # so hack it here
-    @classmethod
-    def __pre_deserialize__(cls, data):
-        data = super().__pre_deserialize__(data)
-        if "database" not in data:
-            data["database"] = None
-        return data
-
-    @property
-    def quoting_dict(self) -> Dict[str, bool]:
-        if hasattr(self, "quoting"):
-            return self.quoting.to_dict(omit_none=True)
-        else:
-            return {}
-
-
-@dataclass
 class DeferRelation(HasRelationMetadata):
     alias: str
     relation_name: Optional[str]
@@ -230,14 +209,10 @@ class DeferRelation(HasRelationMetadata):
 
 
 @dataclass
-class ParsedNodeMandatory(GraphNode[GraphResource], HasRelationMetadata, Replaceable):
-    alias: str
-    checksum: FileHash
-    config: NodeConfig = field(default_factory=NodeConfig)
-
-    @property
-    def identifier(self):
-        return self.alias
+class ParsedNodeMandatory(
+    ParsedNodeMandatoryResource, GraphNode[GraphResource], HasRelationMetadata, Replaceable
+):
+    pass
 
 
 # This needs to be in all ManifestNodes and also in SourceDefinition,
@@ -516,7 +491,7 @@ class HookNode(CompiledNode):
 class ModelNode(CompiledNode):
     resource_type: Literal[NodeType.Model]
     access: AccessType = AccessType.Protected
-    config: ModelConfig = field(default_factory=ModelConfig)
+    config: ModelConfig = field(default_factory=ModelConfig)  # type: ignore[assignment]
     constraints: List[ModelLevelConstraint] = field(default_factory=list)
     version: Optional[NodeVersion] = None
     latest_version: Optional[NodeVersion] = None
@@ -818,7 +793,7 @@ class SqlNode(CompiledNode):
 @dataclass
 class SeedNode(ParsedNode):  # No SQLDefaults!
     resource_type: Literal[NodeType.Seed]
-    config: SeedConfig = field(default_factory=SeedConfig)
+    config: SeedConfig = field(default_factory=SeedConfig)  # type: ignore[assignment]
     # seeds need the root_path because the contents are not loaded initially
     # and we need the root_path to load the seed later
     root_path: Optional[str] = None
@@ -1014,7 +989,7 @@ class UnitTestNode(CompiledNode):
     tested_node_unique_id: Optional[str] = None
     this_input_node_unique_id: Optional[str] = None
     overrides: Optional[UnitTestOverrides] = None
-    config: UnitTestNodeConfig = field(default_factory=UnitTestNodeConfig)
+    config: UnitTestNodeConfig = field(default_factory=UnitTestNodeConfig)  # type: ignore[assignment]
 
 
 @dataclass
@@ -1094,13 +1069,13 @@ class IntermediateSnapshotNode(CompiledNode):
     # into a full ParsedSnapshotNode after rendering. Note: it currently does
     # not work to set snapshot config in schema files because of the validation.
     resource_type: Literal[NodeType.Snapshot]
-    config: EmptySnapshotConfig = field(default_factory=EmptySnapshotConfig)
+    config: EmptySnapshotConfig = field(default_factory=EmptySnapshotConfig)  # type: ignore[assignment]
 
 
 @dataclass
 class SnapshotNode(CompiledNode):
     resource_type: Literal[NodeType.Snapshot]
-    config: SnapshotConfig
+    config: SnapshotConfig  # type: ignore[assignment]
     defer_relation: Optional[DeferRelation] = None
 
 

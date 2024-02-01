@@ -6,7 +6,7 @@ from dbt_common.contracts.util import Replaceable
 from dbt_common.dataclass_schema import dbtClassMixin
 from dbt.artifacts.resources.base import BaseResource
 from dbt.artifacts.resources.types import NodeType, ModelLanguage
-from dbt.artifacts.resources.v1.docs import Docs
+from dbt.artifacts.resources.v1.components import Docs
 
 
 @dataclass

@@ -1,7 +1,14 @@
-from dbt.artifacts.resources.base import BaseResource, GraphResource
+from dbt.artifacts.resources.base import BaseResource, GraphResource, FileHash
 
 # alias to latest resource definitions
-from dbt.artifacts.resources.v1.components import DependsOn, NodeVersion, RefArgs
+from dbt.artifacts.resources.v1.components import (
+    DependsOn,
+    NodeVersion,
+    RefArgs,
+    HasRelationMetadata,
+    ParsedNodeMandatory,
+    Docs,
+)
 from dbt.artifacts.resources.v1.documentation import Documentation
 from dbt.artifacts.resources.v1.exposure import (
     Exposure,
@@ -10,7 +17,6 @@ from dbt.artifacts.resources.v1.exposure import (
     MaturityType,
 )
 from dbt.artifacts.resources.v1.macro import Macro, MacroDependsOn, MacroArgument
-from dbt.artifacts.resources.v1.docs import Docs
 from dbt.artifacts.resources.v1.group import Group
 from dbt.artifacts.resources.v1.metric import (
     ConstantPropertyInput,
