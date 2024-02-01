@@ -491,7 +491,7 @@ class HookNode(CompiledNode):
 class ModelNode(CompiledNode):
     resource_type: Literal[NodeType.Model]
     access: AccessType = AccessType.Protected
-    config: ModelConfig = field(default_factory=ModelConfig)  # type: ignore[assignment]
+    config: ModelConfig = field(default_factory=ModelConfig)
     constraints: List[ModelLevelConstraint] = field(default_factory=list)
     version: Optional[NodeVersion] = None
     latest_version: Optional[NodeVersion] = None
@@ -793,7 +793,7 @@ class SqlNode(CompiledNode):
 @dataclass
 class SeedNode(ParsedNode):  # No SQLDefaults!
     resource_type: Literal[NodeType.Seed]
-    config: SeedConfig = field(default_factory=SeedConfig)  # type: ignore[assignment]
+    config: SeedConfig = field(default_factory=SeedConfig)
     # seeds need the root_path because the contents are not loaded initially
     # and we need the root_path to load the seed later
     root_path: Optional[str] = None
@@ -989,7 +989,7 @@ class UnitTestNode(CompiledNode):
     tested_node_unique_id: Optional[str] = None
     this_input_node_unique_id: Optional[str] = None
     overrides: Optional[UnitTestOverrides] = None
-    config: UnitTestNodeConfig = field(default_factory=UnitTestNodeConfig)  # type: ignore[assignment]
+    config: UnitTestNodeConfig = field(default_factory=UnitTestNodeConfig)
 
 
 @dataclass
@@ -1069,13 +1069,13 @@ class IntermediateSnapshotNode(CompiledNode):
     # into a full ParsedSnapshotNode after rendering. Note: it currently does
     # not work to set snapshot config in schema files because of the validation.
     resource_type: Literal[NodeType.Snapshot]
-    config: EmptySnapshotConfig = field(default_factory=EmptySnapshotConfig)  # type: ignore[assignment]
+    config: EmptySnapshotConfig = field(default_factory=EmptySnapshotConfig)
 
 
 @dataclass
 class SnapshotNode(CompiledNode):
     resource_type: Literal[NodeType.Snapshot]
-    config: SnapshotConfig  # type: ignore[assignment]
+    config: SnapshotConfig
     defer_relation: Optional[DeferRelation] = None
 
 
