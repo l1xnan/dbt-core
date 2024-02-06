@@ -1,8 +1,14 @@
+import time
 from dataclasses import dataclass, field
-from dbt.artifacts.resources.base import GraphResource, FileHash
+from dbt.artifacts.resources.base import GraphResource, FileHash, Docs
 from dbt.artifacts.resources.v1.config import NodeConfig
-from dbt_common.dataclass_schema import dbtClassMixin
-from typing import Dict, List, Optional, Union
+from dbt_common.dataclass_schema import (
+    dbtClassMixin,
+    ExtensibleDbtClassMixin,
+)
+from dbt_common.contracts.config.properties import AdditionalPropertiesMixin
+from dbt_common.contracts.constraints import ColumnLevelConstraint
+from typing import Dict, List, Optional, Union, Any
 
 
 NodeVersion = Union[str, float]
@@ -49,6 +55,20 @@ class RefArgs(dbtClassMixin):
 
 
 @dataclass
+class ColumnInfo(AdditionalPropertiesMixin, ExtensibleDbtClassMixin):
+    """Used in all ManifestNodes and SourceDefinition"""
+
+    name: str
+    description: str = ""
+    meta: Dict[str, Any] = field(default_factory=dict)
+    data_type: Optional[str] = None
+    constraints: List[ColumnLevelConstraint] = field(default_factory=list)
+    quote: Optional[bool] = None
+    tags: List[str] = field(default_factory=list)
+    _extra: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
 class HasRelationMetadata(dbtClassMixin):
     database: Optional[str]
     schema: str
@@ -80,3 +100,21 @@ class ParsedNodeMandatory(GraphResource, HasRelationMetadata):
     @property
     def identifier(self):
         return self.alias
+
+
+@dataclass
+class ParsedNode(ParsedNodeMandatory):
+    tags: List[str] = field(default_factory=list)
+    description: str = field(default="")
+    columns: Dict[str, ColumnInfo] = field(default_factory=dict)
+    meta: Dict[str, Any] = field(default_factory=dict)
+    group: Optional[str] = None
+    docs: Docs = field(default_factory=Docs)
+    patch_path: Optional[str] = None
+    build_path: Optional[str] = None
+    deferred: bool = False
+    unrendered_config: Dict[str, Any] = field(default_factory=dict)
+    created_at: float = field(default_factory=lambda: time.time())
+    config_call_dict: Dict[str, Any] = field(default_factory=dict)
+    relation_name: Optional[str] = None
+    raw_code: str = ""

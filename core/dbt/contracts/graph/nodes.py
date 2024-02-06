@@ -22,11 +22,10 @@ from typing import (
 
 from dbt import deprecations
 from dbt_common.contracts.constraints import (
-    ColumnLevelConstraint,
     ConstraintType,
     ModelLevelConstraint,
 )
-from dbt_common.dataclass_schema import dbtClassMixin, ExtensibleDbtClassMixin
+from dbt_common.dataclass_schema import dbtClassMixin
 
 from dbt_common.clients.system import write_file
 from dbt.contracts.graph.unparsed import (
@@ -45,7 +44,6 @@ from dbt.contracts.graph.unparsed import (
 )
 from dbt.contracts.graph.node_args import ModelNodeArgs
 from dbt.contracts.util import Replaceable
-from dbt_common.contracts.config.properties import AdditionalPropertiesMixin
 from dbt_common.events.functions import warn_or_error
 from dbt.exceptions import ParsingError, ContractBreakingChangeError, ValidationError
 from dbt.events.types import (
@@ -92,9 +90,11 @@ from dbt.artifacts.resources import (
     SavedQuery as SavedQueryResource,
     SemanticModel as SemanticModelResource,
     ParsedNodeMandatory as ParsedNodeMandatoryResource,
+    ParsedNode as ParsedNodeResource,
     HasRelationMetadata,
     FileHash,
     NodeConfig,
+    ColumnInfo,
 )
 
 # =====================================================================
@@ -177,20 +177,6 @@ class GraphNode(GraphResource, BaseNode[ResourceTypeT], Generic[ResourceTypeT]):
 
 
 @dataclass
-class ColumnInfo(AdditionalPropertiesMixin, ExtensibleDbtClassMixin, Replaceable):
-    """Used in all ManifestNodes and SourceDefinition"""
-
-    name: str
-    description: str = ""
-    meta: Dict[str, Any] = field(default_factory=dict)
-    data_type: Optional[str] = None
-    constraints: List[ColumnLevelConstraint] = field(default_factory=list)
-    quote: Optional[bool] = None
-    tags: List[str] = field(default_factory=list)
-    _extra: Dict[str, Any] = field(default_factory=dict)
-
-
-@dataclass
 class Contract(dbtClassMixin, Replaceable):
     enforced: bool = False
     alias_types: bool = True
@@ -216,7 +202,8 @@ class ParsedNodeMandatory(
 
 
 # This needs to be in all ManifestNodes and also in SourceDefinition,
-# because of "source freshness"
+# because of "source freshness". Should not be in artifacts, because we
+# don't write out _event_status.
 @dataclass
 class NodeInfoMixin:
     _event_status: Dict[str, Any] = field(default_factory=dict)
@@ -252,22 +239,7 @@ class NodeInfoMixin:
 
 
 @dataclass
-class ParsedNode(NodeInfoMixin, ParsedNodeMandatory, SerializableType):
-    tags: List[str] = field(default_factory=list)
-    description: str = field(default="")
-    columns: Dict[str, ColumnInfo] = field(default_factory=dict)
-    meta: Dict[str, Any] = field(default_factory=dict)
-    group: Optional[str] = None
-    docs: Docs = field(default_factory=Docs)
-    patch_path: Optional[str] = None
-    build_path: Optional[str] = None
-    deferred: bool = False
-    unrendered_config: Dict[str, Any] = field(default_factory=dict)
-    created_at: float = field(default_factory=lambda: time.time())
-    config_call_dict: Dict[str, Any] = field(default_factory=dict)
-    relation_name: Optional[str] = None
-    raw_code: str = ""
-
+class ParsedNode(ParsedNodeResource, NodeInfoMixin, ParsedNodeMandatory, SerializableType):
     def get_target_write_path(self, target_path: str, subdirectory: str):
         # This is called for both the "compiled" subdirectory of "target" and the "run" subdirectory
         if os.path.basename(self.path) == os.path.basename(self.original_file_path):

@@ -7,6 +7,8 @@ from dbt.artifacts.resources.v1.components import (
     RefArgs,
     HasRelationMetadata,
     ParsedNodeMandatory,
+    ParsedNode,
+    ColumnInfo,
 )
 from dbt.artifacts.resources.v1.documentation import Documentation
 from dbt.artifacts.resources.v1.exposure import (
