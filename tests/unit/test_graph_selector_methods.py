@@ -8,7 +8,6 @@ from pathlib import Path
 from dbt.contracts.files import FileHash
 from dbt.contracts.graph.nodes import (
     DependsOn,
-    MacroDependsOn,
     NodeConfig,
     Macro,
     ModelNode,
@@ -35,6 +34,7 @@ from dbt.artifacts.resources import (
     NodeRelation,
     Owner,
     QueryParams,
+    MacroDependsOn,
 )
 from dbt.contracts.graph.unparsed import (
     UnitTestInputFixture,

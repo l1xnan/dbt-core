@@ -154,3 +154,16 @@ class ModelConfig(NodeConfig):
         default=AccessType.Protected,
         metadata=MergeBehavior.Update.meta(),
     )
+
+
+@dataclass
+class SeedConfig(NodeConfig):
+    materialized: str = "seed"
+    delimiter: str = ","
+    quote_columns: Optional[bool] = None
+
+    @classmethod
+    def validate(cls, data):
+        super().validate(data)
+        if data.get("materialized") and data.get("materialized") != "seed":
+            raise ValidationError("A seed must have a materialized value of 'seed'")

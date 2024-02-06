@@ -60,7 +60,6 @@ from dbt.node_types import (
 )
 
 from .model_config import (
-    SeedConfig,
     TestConfig,
     SourceConfig,
     EmptySnapshotConfig,
@@ -74,7 +73,6 @@ from dbt.artifacts.resources import (
     DependsOn,
     Docs,
     Exposure as ExposureResource,
-    MacroDependsOn,
     MacroArgument,
     Documentation as DocumentationResource,
     Macro as MacroResource,
@@ -97,6 +95,8 @@ from dbt.artifacts.resources import (
     ModelNode as ModelNodeResource,
     DeferRelation,
     ModelConfig,
+    SqlNode as SqlNodeResource,
+    SeedNode as SeedNodeResource,
 )
 
 # =====================================================================
@@ -263,8 +263,6 @@ class ParsedNode(ParsedNodeResource, NodeInfoMixin, ParsedNodeMandatory, Seriali
             return AnalysisNode.from_dict(dct)
         elif resource_type == "seed":
             return SeedNode.from_dict(dct)
-        elif resource_type == "rpc":
-            return RPCNode.from_dict(dct)
         elif resource_type == "sql":
             return SqlNode.from_dict(dct)
         elif resource_type == "test":
@@ -699,15 +697,9 @@ class ModelNode(ModelNodeResource, CompiledNode):
         return False
 
 
-# TODO: rm?
 @dataclass
-class RPCNode(CompiledNode):
-    resource_type: Literal[NodeType.RPCCall]
-
-
-@dataclass
-class SqlNode(CompiledNode):
-    resource_type: Literal[NodeType.SqlOperation]
+class SqlNode(SqlNodeResource, CompiledNode):
+    pass
 
 
 # ====================================
@@ -716,15 +708,7 @@ class SqlNode(CompiledNode):
 
 
 @dataclass
-class SeedNode(ParsedNode):  # No SQLDefaults!
-    resource_type: Literal[NodeType.Seed]
-    config: SeedConfig = field(default_factory=SeedConfig)
-    # seeds need the root_path because the contents are not loaded initially
-    # and we need the root_path to load the seed later
-    root_path: Optional[str] = None
-    depends_on: MacroDependsOn = field(default_factory=MacroDependsOn)
-    defer_relation: Optional[DeferRelation] = None
-
+class SeedNode(SeedNodeResource, ParsedNode):  # No SQLDefaults!
     def same_seeds(self, other: "SeedNode") -> bool:
         # for seeds, we check the hashes. If the hashes are different types,
         # no match. If the hashes are both the same 'path', log a warning and
@@ -1582,7 +1566,6 @@ ManifestSQLNode = Union[
     SingularTestNode,
     HookNode,
     ModelNode,
-    RPCNode,
     SqlNode,
     GenericTestNode,
     SnapshotNode,

@@ -9,6 +9,7 @@ from dbt.artifacts.resources import (
     SemanticModelConfig,
     NodeAndTestConfig,
     NodeConfig,
+    SeedConfig,
 )
 from dbt_common.contracts.config.base import BaseConfig, MergeBehavior, CompareBehavior
 from dbt_common.contracts.config.metadata import Metadata, ShowBehavior
@@ -40,12 +41,6 @@ class Severity(str):
 
 
 @dataclass
-class ContractConfig(dbtClassMixin, Replaceable):
-    enforced: bool = False
-    alias_types: bool = True
-
-
-@dataclass
 class Hook(dbtClassMixin, Replaceable):
     sql: str
     transaction: bool = True
@@ -60,19 +55,6 @@ class SourceConfig(BaseConfig):
 @dataclass
 class UnitTestNodeConfig(NodeConfig):
     expected_rows: List[Dict[str, Any]] = field(default_factory=list)
-
-
-@dataclass
-class SeedConfig(NodeConfig):
-    materialized: str = "seed"
-    delimiter: str = ","
-    quote_columns: Optional[bool] = None
-
-    @classmethod
-    def validate(cls, data):
-        super().validate(data)
-        if data.get("materialized") and data.get("materialized") != "seed":
-            raise ValidationError("A seed must have a materialized value of 'seed'")
 
 
 SEVERITY_PATTERN = r"^([Ww][Aa][Rr][Nn]|[Ee][Rr][Rr][Oo][Rr])$"

@@ -14,7 +14,13 @@ from dbt.artifacts.resources.v1.components import (
     Contract,
     DeferRelation,
 )
-from dbt.artifacts.resources.v1.compiled import AnalysisNode, HookNode, ModelNode
+from dbt.artifacts.resources.v1.compiled import (
+    AnalysisNode,
+    HookNode,
+    ModelNode,
+    SqlNode,
+    SeedNode,
+)
 from dbt.artifacts.resources.v1.documentation import Documentation
 from dbt.artifacts.resources.v1.exposure import (
     Exposure,
@@ -67,4 +73,5 @@ from dbt.artifacts.resources.v1.config import (
     NodeAndTestConfig,
     NodeConfig,
     ModelConfig,
+    SeedConfig,
 )

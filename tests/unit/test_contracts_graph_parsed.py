@@ -15,6 +15,7 @@ from dbt.artifacts.resources import (
     MetricTypeParams,
     Owner,
     RefArgs,
+    MacroDependsOn,
 )
 from dbt.node_types import NodeType, AccessType
 from dbt.contracts.files import FileHash
@@ -40,7 +41,6 @@ from dbt.contracts.graph.nodes import (
     Metric,
     SeedNode,
     Docs,
-    MacroDependsOn,
     SourceDefinition,
     Documentation,
     HookNode,
