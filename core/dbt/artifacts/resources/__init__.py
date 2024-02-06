@@ -9,6 +9,9 @@ from dbt.artifacts.resources.v1.components import (
     ParsedNodeMandatory,
     ParsedNode,
     ColumnInfo,
+    CompiledNode,
+    InjectedCTE,
+    Contract,
 )
 from dbt.artifacts.resources.v1.documentation import Documentation
 from dbt.artifacts.resources.v1.exposure import (

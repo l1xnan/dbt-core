@@ -69,6 +69,21 @@ class ColumnInfo(AdditionalPropertiesMixin, ExtensibleDbtClassMixin):
 
 
 @dataclass
+class InjectedCTE(dbtClassMixin):
+    """Used in CompiledNodes as part of ephemeral model processing"""
+
+    id: str
+    sql: str
+
+
+@dataclass
+class Contract(dbtClassMixin):
+    enforced: bool = False
+    alias_types: bool = True
+    checksum: Optional[str] = None
+
+
+@dataclass
 class HasRelationMetadata(dbtClassMixin):
     database: Optional[str]
     schema: str
@@ -118,3 +133,22 @@ class ParsedNode(ParsedNodeMandatory):
     config_call_dict: Dict[str, Any] = field(default_factory=dict)
     relation_name: Optional[str] = None
     raw_code: str = ""
+
+
+@dataclass
+class CompiledNode(ParsedNode):
+    """Contains attributes necessary for SQL files and nodes with refs, sources, etc,
+    so all ManifestNodes except SeedNode."""
+
+    language: str = "sql"
+    refs: List[RefArgs] = field(default_factory=list)
+    sources: List[List[str]] = field(default_factory=list)
+    metrics: List[List[str]] = field(default_factory=list)
+    depends_on: DependsOn = field(default_factory=DependsOn)
+    compiled_path: Optional[str] = None
+    compiled: bool = False
+    compiled_code: Optional[str] = None
+    extra_ctes_injected: bool = False
+    extra_ctes: List[InjectedCTE] = field(default_factory=list)
+    _pre_injected_sql: Optional[str] = None
+    contract: Contract = field(default_factory=Contract)

@@ -86,15 +86,16 @@ from dbt.artifacts.resources import (
     NodeVersion,
     Group as GroupResource,
     GraphResource,
-    RefArgs as RefArgsResource,
     SavedQuery as SavedQueryResource,
     SemanticModel as SemanticModelResource,
     ParsedNodeMandatory as ParsedNodeMandatoryResource,
     ParsedNode as ParsedNodeResource,
+    CompiledNode as CompiledNodeResource,
     HasRelationMetadata,
     FileHash,
     NodeConfig,
     ColumnInfo,
+    InjectedCTE,
 )
 
 # =====================================================================
@@ -174,13 +175,6 @@ class GraphNode(GraphResource, BaseNode[ResourceTypeT], Generic[ResourceTypeT]):
 
     def same_fqn(self, other) -> bool:
         return self.fqn == other.fqn
-
-
-@dataclass
-class Contract(dbtClassMixin, Replaceable):
-    enforced: bool = False
-    alias_types: bool = True
-    checksum: Optional[str] = None
 
 
 # Metrics, exposures,
@@ -378,30 +372,9 @@ class ParsedNode(ParsedNodeResource, NodeInfoMixin, ParsedNodeMandatory, Seriali
 
 
 @dataclass
-class InjectedCTE(dbtClassMixin, Replaceable):
-    """Used in CompiledNodes as part of ephemeral model processing"""
-
-    id: str
-    sql: str
-
-
-@dataclass
-class CompiledNode(ParsedNode):
+class CompiledNode(CompiledNodeResource, ParsedNode):
     """Contains attributes necessary for SQL files and nodes with refs, sources, etc,
     so all ManifestNodes except SeedNode."""
-
-    language: str = "sql"
-    refs: List[RefArgsResource] = field(default_factory=list)
-    sources: List[List[str]] = field(default_factory=list)
-    metrics: List[List[str]] = field(default_factory=list)
-    depends_on: DependsOn = field(default_factory=DependsOn)
-    compiled_path: Optional[str] = None
-    compiled: bool = False
-    compiled_code: Optional[str] = None
-    extra_ctes_injected: bool = False
-    extra_ctes: List[InjectedCTE] = field(default_factory=list)
-    _pre_injected_sql: Optional[str] = None
-    contract: Contract = field(default_factory=Contract)
 
     @property
     def empty(self):
