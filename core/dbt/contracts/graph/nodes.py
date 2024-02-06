@@ -21,10 +21,7 @@ from typing import (
 )
 
 from dbt import deprecations
-from dbt_common.contracts.constraints import (
-    ConstraintType,
-    ModelLevelConstraint,
-)
+from dbt_common.contracts.constraints import ConstraintType
 from dbt_common.dataclass_schema import dbtClassMixin
 
 from dbt_common.clients.system import write_file
@@ -63,7 +60,6 @@ from dbt.node_types import (
 )
 
 from .model_config import (
-    ModelConfig,
     SeedConfig,
     TestConfig,
     SourceConfig,
@@ -96,6 +92,11 @@ from dbt.artifacts.resources import (
     NodeConfig,
     ColumnInfo,
     InjectedCTE,
+    AnalysisNode as AnalysisNodeResource,
+    HookNode as HookNodeResource,
+    ModelNode as ModelNodeResource,
+    DeferRelation,
+    ModelConfig,
 )
 
 # =====================================================================
@@ -175,17 +176,6 @@ class GraphNode(GraphResource, BaseNode[ResourceTypeT], Generic[ResourceTypeT]):
 
     def same_fqn(self, other) -> bool:
         return self.fqn == other.fqn
-
-
-# Metrics, exposures,
-@dataclass
-class DeferRelation(HasRelationMetadata):
-    alias: str
-    relation_name: Optional[str]
-
-    @property
-    def identifier(self):
-        return self.alias
 
 
 @dataclass
@@ -422,27 +412,17 @@ class CompiledNode(CompiledNodeResource, ParsedNode):
 
 
 @dataclass
-class AnalysisNode(CompiledNode):
-    resource_type: Literal[NodeType.Analysis]
+class AnalysisNode(AnalysisNodeResource, CompiledNode):
+    pass
 
 
 @dataclass
-class HookNode(CompiledNode):
-    resource_type: Literal[NodeType.Operation]
-    index: Optional[int] = None
+class HookNode(HookNodeResource, CompiledNode):
+    pass
 
 
 @dataclass
-class ModelNode(CompiledNode):
-    resource_type: Literal[NodeType.Model]
-    access: AccessType = AccessType.Protected
-    config: ModelConfig = field(default_factory=ModelConfig)
-    constraints: List[ModelLevelConstraint] = field(default_factory=list)
-    version: Optional[NodeVersion] = None
-    latest_version: Optional[NodeVersion] = None
-    deprecation_date: Optional[datetime] = None
-    defer_relation: Optional[DeferRelation] = None
-
+class ModelNode(ModelNodeResource, CompiledNode):
     @classmethod
     def from_args(cls, args: ModelNodeArgs) -> "ModelNode":
         unique_id = args.unique_id

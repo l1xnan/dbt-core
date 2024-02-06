@@ -18,8 +18,8 @@ from dbt.artifacts.resources import (
 )
 from dbt.node_types import NodeType, AccessType
 from dbt.contracts.files import FileHash
+from dbt.artifacts.resources import ModelConfig
 from dbt.contracts.graph.model_config import (
-    ModelConfig,
     NodeConfig,
     SeedConfig,
     TestConfig,

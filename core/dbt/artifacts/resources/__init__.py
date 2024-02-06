@@ -12,7 +12,9 @@ from dbt.artifacts.resources.v1.components import (
     CompiledNode,
     InjectedCTE,
     Contract,
+    DeferRelation,
 )
+from dbt.artifacts.resources.v1.compiled import AnalysisNode, HookNode, ModelNode
 from dbt.artifacts.resources.v1.documentation import Documentation
 from dbt.artifacts.resources.v1.exposure import (
     Exposure,
@@ -64,4 +66,5 @@ from dbt.artifacts.resources.v1.semantic_model import (
 from dbt.artifacts.resources.v1.config import (
     NodeAndTestConfig,
     NodeConfig,
+    ModelConfig,
 )

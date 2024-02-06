@@ -17,7 +17,7 @@ from dbt_common.dataclass_schema import (
     ValidationError,
 )
 from dbt.contracts.util import Replaceable, list_str
-from dbt.node_types import NodeType, AccessType
+from dbt.node_types import NodeType
 from mashumaro.jsonschema.annotations import Pattern
 
 
@@ -55,14 +55,6 @@ class Hook(dbtClassMixin, Replaceable):
 @dataclass
 class SourceConfig(BaseConfig):
     enabled: bool = True
-
-
-@dataclass
-class ModelConfig(NodeConfig):
-    access: AccessType = field(
-        default=AccessType.Protected,
-        metadata=MergeBehavior.Update.meta(),
-    )
 
 
 @dataclass

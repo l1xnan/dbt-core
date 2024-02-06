@@ -107,6 +107,16 @@ class HasRelationMetadata(dbtClassMixin):
 
 
 @dataclass
+class DeferRelation(HasRelationMetadata):
+    alias: str
+    relation_name: Optional[str]
+
+    @property
+    def identifier(self):
+        return self.alias
+
+
+@dataclass
 class ParsedNodeMandatory(GraphResource, HasRelationMetadata):
     alias: str
     checksum: FileHash

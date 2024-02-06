@@ -9,7 +9,7 @@ from dbt_common.contracts.config.base import (
 from dbt_common.contracts.config.metadata import Metadata, ShowBehavior
 from dbt_common.contracts.config.materialization import OnConfigurationChangeOption
 from dbt.artifacts.resources.base import Docs
-from dbt.artifacts.resources.types import ModelHookType
+from dbt.artifacts.resources.types import ModelHookType, AccessType
 from dbt.contracts.graph.utils import validate_color
 from dbt import hooks
 
@@ -146,3 +146,11 @@ class NodeConfig(NodeAndTestConfig):
             if key in data:
                 data[key] = [hooks.get_hook_dict(h) for h in data[key]]
         return data
+
+
+@dataclass
+class ModelConfig(NodeConfig):
+    access: AccessType = field(
+        default=AccessType.Protected,
+        metadata=MergeBehavior.Update.meta(),
+    )

@@ -1,0 +1,34 @@
+from dataclasses import dataclass, field
+from dbt.artifacts.resources.v1.components import (
+    CompiledNode,
+    NodeVersion,
+    DeferRelation,
+)
+from dbt_common.contracts.constraints import ModelLevelConstraint
+from dbt.artifacts.resources.v1.config import ModelConfig
+from typing import Literal, Optional, List
+from dbt.artifacts.resources.types import NodeType, AccessType
+from datetime import datetime
+
+
+@dataclass
+class AnalysisNode(CompiledNode):
+    resource_type: Literal[NodeType.Analysis]
+
+
+@dataclass
+class HookNode(CompiledNode):
+    resource_type: Literal[NodeType.Operation]
+    index: Optional[int] = None
+
+
+@dataclass
+class ModelNode(CompiledNode):
+    resource_type: Literal[NodeType.Model]
+    access: AccessType = AccessType.Protected
+    config: ModelConfig = field(default_factory=ModelConfig)
+    constraints: List[ModelLevelConstraint] = field(default_factory=list)
+    version: Optional[NodeVersion] = None
+    latest_version: Optional[NodeVersion] = None
+    deprecation_date: Optional[datetime] = None
+    defer_relation: Optional[DeferRelation] = None
