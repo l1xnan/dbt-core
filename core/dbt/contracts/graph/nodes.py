@@ -22,7 +22,6 @@ from typing import (
 
 from dbt import deprecations
 from dbt_common.contracts.constraints import ConstraintType
-from dbt_common.dataclass_schema import dbtClassMixin
 
 from dbt_common.clients.system import write_file
 from dbt.contracts.graph.unparsed import (
@@ -94,10 +93,10 @@ from dbt.artifacts.resources import (
     ModelNode as ModelNodeResource,
     DeferRelation,
     ModelConfig,
-    TestConfig,
     SqlNode as SqlNodeResource,
     SeedNode as SeedNodeResource,
     SingularTestNode as SingularTestNodeResource,
+    GenericTestNode as GenericTestNodeResource,
 )
 
 # =====================================================================
@@ -839,34 +838,7 @@ class SingularTestNode(SingularTestNodeResource, TestShouldStoreFailures, Compil
 
 
 @dataclass
-class TestMetadata(dbtClassMixin, Replaceable):
-    __test__ = False
-
-    name: str
-    # kwargs are the args that are left in the test builder after
-    # removing configs. They are set from the test builder when
-    # the test node is created.
-    kwargs: Dict[str, Any] = field(default_factory=dict)
-    namespace: Optional[str] = None
-
-
-# This has to be separated out because it has no default and so
-# has to be included as a superclass, not an attribute
-@dataclass
-class HasTestMetadata(dbtClassMixin):
-    test_metadata: TestMetadata
-
-
-@dataclass
-class GenericTestNode(TestShouldStoreFailures, CompiledNode, HasTestMetadata):
-    resource_type: Literal[NodeType.Test]
-    column_name: Optional[str] = None
-    file_key_name: Optional[str] = None
-    # Was not able to make mypy happy and keep the code working. We need to
-    # refactor the various configs.
-    config: TestConfig = field(default_factory=TestConfig)  # type: ignore
-    attached_node: Optional[str] = None
-
+class GenericTestNode(GenericTestNodeResource, TestShouldStoreFailures, CompiledNode):
     def same_contents(self, other, adapter_type: Optional[str]) -> bool:
         if other is None:
             return False

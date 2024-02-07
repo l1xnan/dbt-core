@@ -20,8 +20,6 @@ from dbt.contracts.graph.nodes import (
     SingularTestNode,
     GenericTestNode,
     SourceDefinition,
-    TestConfig,
-    TestMetadata,
     ColumnInfo,
     AccessType,
     UnitTestDefinition,
@@ -35,6 +33,8 @@ from dbt.artifacts.resources import (
     Owner,
     QueryParams,
     MacroDependsOn,
+    TestConfig,
+    TestMetadata,
 )
 from dbt.contracts.graph.unparsed import (
     UnitTestInputFixture,

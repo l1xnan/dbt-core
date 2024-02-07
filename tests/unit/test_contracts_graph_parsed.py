@@ -16,6 +16,7 @@ from dbt.artifacts.resources import (
     Owner,
     RefArgs,
     MacroDependsOn,
+    TestMetadata,
 )
 from dbt.node_types import NodeType, AccessType
 from dbt.contracts.files import FileHash
@@ -44,7 +45,6 @@ from dbt.contracts.graph.nodes import (
     SourceDefinition,
     Documentation,
     HookNode,
-    TestMetadata,
     SemanticModel,
 )
 from dbt.contracts.graph.unparsed import (

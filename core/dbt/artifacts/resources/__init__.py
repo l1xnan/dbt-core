@@ -14,13 +14,15 @@ from dbt.artifacts.resources.v1.components import (
     Contract,
     DeferRelation,
 )
-from dbt.artifacts.resources.v1.compiled import (
+from dbt.artifacts.resources.v1.manifest_nodes import (
     AnalysisNode,
     HookNode,
     ModelNode,
     SqlNode,
     SeedNode,
     SingularTestNode,
+    TestMetadata,
+    GenericTestNode,
 )
 from dbt.artifacts.resources.v1.documentation import Documentation
 from dbt.artifacts.resources.v1.exposure import (
