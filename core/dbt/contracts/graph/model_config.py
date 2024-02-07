@@ -1,15 +1,14 @@
 from dataclasses import field, dataclass
 from typing import Any, List, Optional, Dict, Union, Type
-from typing_extensions import Annotated
 
 from dbt.artifacts.resources import (
     ExposureConfig,
     MetricConfig,
     SavedQueryConfig,
     SemanticModelConfig,
-    NodeAndTestConfig,
     NodeConfig,
     SeedConfig,
+    TestConfig,
 )
 from dbt_common.contracts.config.base import BaseConfig, MergeBehavior, CompareBehavior
 from dbt_common.contracts.config.metadata import Metadata, ShowBehavior
@@ -19,7 +18,6 @@ from dbt_common.dataclass_schema import (
 )
 from dbt.contracts.util import Replaceable, list_str
 from dbt.node_types import NodeType
-from mashumaro.jsonschema.annotations import Pattern
 
 
 def metas(*metas: Metadata) -> Dict[str, Any]:
@@ -34,10 +32,6 @@ def insensitive_patterns(*patterns: str):
     for pattern in patterns:
         lowercased.append("".join("[{}{}]".format(s.upper(), s.lower()) for s in pattern))
     return "^({})$".format("|".join(lowercased))
-
-
-class Severity(str):
-    pass
 
 
 @dataclass
@@ -55,107 +49,6 @@ class SourceConfig(BaseConfig):
 @dataclass
 class UnitTestNodeConfig(NodeConfig):
     expected_rows: List[Dict[str, Any]] = field(default_factory=list)
-
-
-SEVERITY_PATTERN = r"^([Ww][Aa][Rr][Nn]|[Ee][Rr][Rr][Oo][Rr])$"
-
-
-@dataclass
-class TestConfig(NodeAndTestConfig):
-    __test__ = False
-
-    # this is repeated because of a different default
-    schema: Optional[str] = field(
-        default="dbt_test__audit",
-        metadata=CompareBehavior.Exclude.meta(),
-    )
-    materialized: str = "test"
-    # Annotated is used by mashumaro for jsonschema generation
-    severity: Annotated[Severity, Pattern(SEVERITY_PATTERN)] = Severity("ERROR")
-    store_failures: Optional[bool] = None
-    store_failures_as: Optional[str] = None
-    where: Optional[str] = None
-    limit: Optional[int] = None
-    fail_calc: str = "count(*)"
-    warn_if: str = "!= 0"
-    error_if: str = "!= 0"
-
-    def __post_init__(self):
-        """
-        The presence of a setting for `store_failures_as` overrides any existing setting for `store_failures`,
-        regardless of level of granularity. If `store_failures_as` is not set, then `store_failures` takes effect.
-        At the time of implementation, `store_failures = True` would always create a table; the user could not
-        configure this. Hence, if `store_failures = True` and `store_failures_as` is not specified, then it
-        should be set to "table" to mimic the existing functionality.
-
-        A side effect of this overriding functionality is that `store_failures_as="view"` at the project
-        level cannot be turned off at the model level without setting both `store_failures_as` and
-        `store_failures`. The former would cascade down and override `store_failures=False`. The proposal
-        is to include "ephemeral" as a value for `store_failures_as`, which effectively sets
-        `store_failures=False`.
-
-        The exception handling for this is tricky. If we raise an exception here, the entire run fails at
-        parse time. We would rather well-formed models run successfully, leaving only exceptions to be rerun
-        if necessary. Hence, the exception needs to be raised in the test materialization. In order to do so,
-        we need to make sure that we go down the `store_failures = True` route with the invalid setting for
-        `store_failures_as`. This results in the `.get()` defaulted to `True` below, instead of a normal
-        dictionary lookup as is done in the `if` block. Refer to the test materialization for the
-        exception that is raise as a result of an invalid value.
-
-        The intention of this block is to behave as if `store_failures_as` is the only setting,
-        but still allow for backwards compatibility for `store_failures`.
-        See https://github.com/dbt-labs/dbt-core/issues/6914 for more information.
-        """
-
-        # if `store_failures_as` is not set, it gets set by `store_failures`
-        # the settings below mimic existing behavior prior to `store_failures_as`
-        get_store_failures_as_map = {
-            True: "table",
-            False: "ephemeral",
-            None: None,
-        }
-
-        # if `store_failures_as` is set, it dictates what `store_failures` gets set to
-        # the settings below overrides whatever `store_failures` is set to by the user
-        get_store_failures_map = {
-            "ephemeral": False,
-            "table": True,
-            "view": True,
-        }
-
-        if self.store_failures_as is None:
-            self.store_failures_as = get_store_failures_as_map[self.store_failures]
-        else:
-            self.store_failures = get_store_failures_map.get(self.store_failures_as, True)
-
-    @classmethod
-    def same_contents(cls, unrendered: Dict[str, Any], other: Dict[str, Any]) -> bool:
-        """This is like __eq__, except it explicitly checks certain fields."""
-        modifiers = [
-            "severity",
-            "where",
-            "limit",
-            "fail_calc",
-            "warn_if",
-            "error_if",
-            "store_failures",
-            "store_failures_as",
-        ]
-
-        seen = set()
-        for _, target_name in cls._get_fields():
-            key = target_name
-            seen.add(key)
-            if key in modifiers:
-                if not cls.compare_key(unrendered, other, key):
-                    return False
-        return True
-
-    @classmethod
-    def validate(cls, data):
-        super().validate(data)
-        if data.get("materialized") and data.get("materialized") != "test":
-            raise ValidationError("A test must have a materialized value of 'test'")
 
 
 @dataclass

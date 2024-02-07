@@ -60,7 +60,6 @@ from dbt.node_types import (
 )
 
 from .model_config import (
-    TestConfig,
     SourceConfig,
     EmptySnapshotConfig,
     SnapshotConfig,
@@ -95,8 +94,10 @@ from dbt.artifacts.resources import (
     ModelNode as ModelNodeResource,
     DeferRelation,
     ModelConfig,
+    TestConfig,
     SqlNode as SqlNodeResource,
     SeedNode as SeedNodeResource,
+    SingularTestNode as SingularTestNodeResource,
 )
 
 # =====================================================================
@@ -826,12 +827,7 @@ class TestShouldStoreFailures:
 
 
 @dataclass
-class SingularTestNode(TestShouldStoreFailures, CompiledNode):
-    resource_type: Literal[NodeType.Test]
-    # Was not able to make mypy happy and keep the code working. We need to
-    # refactor the various configs.
-    config: TestConfig = field(default_factory=TestConfig)  # type: ignore
-
+class SingularTestNode(SingularTestNodeResource, TestShouldStoreFailures, CompiledNode):
     @property
     def test_node_type(self):
         return "singular"

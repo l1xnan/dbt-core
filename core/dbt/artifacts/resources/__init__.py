@@ -20,6 +20,7 @@ from dbt.artifacts.resources.v1.compiled import (
     ModelNode,
     SqlNode,
     SeedNode,
+    SingularTestNode,
 )
 from dbt.artifacts.resources.v1.documentation import Documentation
 from dbt.artifacts.resources.v1.exposure import (
@@ -74,4 +75,5 @@ from dbt.artifacts.resources.v1.config import (
     NodeConfig,
     ModelConfig,
     SeedConfig,
+    TestConfig,
 )

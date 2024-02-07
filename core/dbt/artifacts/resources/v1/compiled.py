@@ -7,7 +7,7 @@ from dbt.artifacts.resources.v1.components import (
     MacroDependsOn,
 )
 from dbt_common.contracts.constraints import ModelLevelConstraint
-from dbt.artifacts.resources.v1.config import ModelConfig, SeedConfig
+from dbt.artifacts.resources.v1.config import ModelConfig, SeedConfig, TestConfig
 from typing import Literal, Optional, List
 from dbt.artifacts.resources.types import NodeType, AccessType
 from datetime import datetime
@@ -50,3 +50,11 @@ class SeedNode(ParsedNode):  # No SQLDefaults!
     root_path: Optional[str] = None
     depends_on: MacroDependsOn = field(default_factory=MacroDependsOn)
     defer_relation: Optional[DeferRelation] = None
+
+
+@dataclass
+class SingularTestNode(CompiledNode):
+    resource_type: Literal[NodeType.Test]
+    # Was not able to make mypy happy and keep the code working. We need to
+    # refactor the various configs.
+    config: TestConfig = field(default_factory=TestConfig)  # type: ignore
