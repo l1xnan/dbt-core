@@ -61,7 +61,6 @@ from dbt.node_types import (
 from .model_config import (
     SourceConfig,
     EmptySnapshotConfig,
-    SnapshotConfig,
     UnitTestConfig,
     UnitTestNodeConfig,
 )
@@ -91,12 +90,12 @@ from dbt.artifacts.resources import (
     AnalysisNode as AnalysisNodeResource,
     HookNode as HookNodeResource,
     ModelNode as ModelNodeResource,
-    DeferRelation,
     ModelConfig,
     SqlNode as SqlNodeResource,
     SeedNode as SeedNodeResource,
     SingularTestNode as SingularTestNodeResource,
     GenericTestNode as GenericTestNodeResource,
+    SnapshotNode as SnapshotNodeResource,
 )
 
 # =====================================================================
@@ -957,10 +956,8 @@ class IntermediateSnapshotNode(CompiledNode):
 
 
 @dataclass
-class SnapshotNode(CompiledNode):
-    resource_type: Literal[NodeType.Snapshot]
-    config: SnapshotConfig
-    defer_relation: Optional[DeferRelation] = None
+class SnapshotNode(SnapshotNodeResource, CompiledNode):
+    pass
 
 
 # ====================================

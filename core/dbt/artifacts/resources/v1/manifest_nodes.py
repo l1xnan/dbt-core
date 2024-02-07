@@ -8,7 +8,7 @@ from dbt.artifacts.resources.v1.components import (
     MacroDependsOn,
 )
 from dbt_common.contracts.constraints import ModelLevelConstraint
-from dbt.artifacts.resources.v1.config import ModelConfig, SeedConfig, TestConfig
+from dbt.artifacts.resources.v1.config import ModelConfig, SeedConfig, TestConfig, SnapshotConfig
 from typing import Literal, Optional, List, Dict, Any
 from dbt.artifacts.resources.types import NodeType, AccessType
 from datetime import datetime
@@ -83,3 +83,10 @@ class GenericTestNode(CompiledNode):
     config: TestConfig = field(default_factory=TestConfig)  # type: ignore
     attached_node: Optional[str] = None
     test_metadata: TestMetadata = field(default_factory=TestMetadata)
+
+
+@dataclass
+class SnapshotNode(CompiledNode):
+    resource_type: Literal[NodeType.Snapshot]
+    config: SnapshotConfig
+    defer_relation: Optional[DeferRelation] = None
