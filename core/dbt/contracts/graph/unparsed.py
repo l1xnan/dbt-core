@@ -564,6 +564,7 @@ class MetricTime(dbtClassMixin, Mergeable):
 @dataclass
 class UnparsedMetricInputMeasure(dbtClassMixin):
     name: str
+    # Note: `Union` must be the outermost part of the type annotation for serialization to work properly.
     filter: Union[str, List[str], None] = None
     alias: Optional[str] = None
     join_to_timespine: bool = False
@@ -573,6 +574,7 @@ class UnparsedMetricInputMeasure(dbtClassMixin):
 @dataclass
 class UnparsedMetricInput(dbtClassMixin):
     name: str
+    # Note: `Union` must be the outermost part of the type annotation for serialization to work properly.
     filter: Union[str, List[str], None] = None
     alias: Optional[str] = None
     offset_window: Optional[str] = None
@@ -610,6 +612,7 @@ class UnparsedMetric(dbtClassMixin):
     type: str
     type_params: UnparsedMetricTypeParams
     description: str = ""
+    # Note: `Union` must be the outermost part of the type annotation for serialization to work properly.
     filter: Union[str, List[str], None] = None
     # metadata: Optional[Unparsedetadata] = None # TODO
     meta: Dict[str, Any] = field(default_factory=dict)
@@ -720,6 +723,7 @@ class UnparsedSemanticModel(dbtClassMixin):
 class UnparsedQueryParams(dbtClassMixin):
     metrics: List[str] = field(default_factory=list)
     group_by: List[str] = field(default_factory=list)
+    # Note: `Union` must be the outermost part of the type annotation for serialization to work properly.
     where: Union[str, List[str], None] = None
 
 
