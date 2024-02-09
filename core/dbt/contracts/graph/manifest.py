@@ -1406,7 +1406,7 @@ class Manifest(MacroMethods, DataClassMessagePackMixin, dbtClassMixin):
     def merge_from_artifact(
         self,
         adapter,
-        other: "WritableManifest",
+        other: "Manifest",
         selected: AbstractSet[UniqueID],
         favor_state: bool = False,
     ) -> None:
