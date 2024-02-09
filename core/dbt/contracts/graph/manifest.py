@@ -1020,6 +1020,57 @@ class Manifest(MacroMethods, DataClassMessagePackMixin, dbtClassMixin):
                     group_map[node.group].append(node.unique_id)
         self.group_map = group_map
 
+    @classmethod
+    def from_writable_manifest(cls, writable_manifest: WritableManifest) -> "Manifest":
+        manifest = Manifest(
+            # TODO: update these as corresponding resources are created
+            nodes={node_id: node for node_id, node in writable_manifest.nodes.items()},
+            disabled={
+                disabled_node_id: disabled_node
+                for disabled_node_id, disabled_node in writable_manifest.disabled.items()
+            }
+            if writable_manifest.disabled is not None
+            else {},
+            unit_tests={
+                unit_test_id: unit_test
+                for unit_test_id, unit_test in writable_manifest.unit_tests.items()
+            },
+            sources={
+                source_id: SourceDefinition.from_resource(source)
+                for source_id, source in writable_manifest.sources.items()
+            },
+            macros={
+                macro_id: Macro.from_resource(macro)
+                for macro_id, macro in writable_manifest.macros.items()
+            },
+            docs={
+                doc_id: Documentation.from_resource(doc)
+                for doc_id, doc in writable_manifest.docs.items()
+            },
+            exposures={
+                exposure_id: Exposure.from_resource(exposure)
+                for exposure_id, exposure in writable_manifest.exposures.items()
+            },
+            metrics={
+                metric_id: Metric.from_resource(metric)
+                for metric_id, metric in writable_manifest.metrics.items()
+            },
+            groups={
+                group_id: Group.from_resource(group)
+                for group_id, group in writable_manifest.groups.items()
+            },
+            selectors={
+                selector_id: selector
+                for selector_id, selector in writable_manifest.selectors.items()
+            },
+            semantic_models={
+                semantic_model_id: SemanticModel.from_resource(semantic_model)
+                for semantic_model_id, semantic_model in writable_manifest.semantic_models.items()
+            },
+        )
+
+        return manifest
+
     def writable_manifest(self) -> "WritableManifest":
         self.build_parent_and_child_maps()
         self.build_group_map()
