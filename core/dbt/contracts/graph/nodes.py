@@ -1055,6 +1055,13 @@ class UnitTestDefinition(NodeInfoMixin, GraphNode[GraphResource], UnitTestDefini
         tags = self.config.tags
         return [tags] if isinstance(tags, str) else tags
 
+    @property
+    def versioned_name(self) -> str:
+        versioned_name = self.name
+        if self.version is not None:
+            versioned_name += f"_v{self.version}"
+        return versioned_name
+
     def build_unit_test_checksum(self):
         # everything except 'description'
         data = f"{self.model}-{self.versions}-{self.given}-{self.expect}-{self.overrides}"
@@ -1518,10 +1525,7 @@ class SemanticModel(GraphNode[SemanticModelResource], SemanticModelResource):
         return self.depends_on.macros
 
     def same_model(self, old: "SemanticModel") -> bool:
-        return self.model == old.same_model
-
-    def same_node_relation(self, old: "SemanticModel") -> bool:
-        return self.node_relation == old.node_relation
+        return self.model == old.model
 
     def same_description(self, old: "SemanticModel") -> bool:
         return self.description == old.description
@@ -1555,7 +1559,6 @@ class SemanticModel(GraphNode[SemanticModelResource], SemanticModelResource):
 
         return (
             self.same_model(old)
-            and self.same_node_relation(old)
             and self.same_description(old)
             and self.same_defaults(old)
             and self.same_entities(old)
