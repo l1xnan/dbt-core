@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from dbt_common.dataclass_schema import dbtClassMixin
-from dbt_common.contracts.util import Replaceable
 from typing import List, Optional
 import hashlib
 
@@ -8,7 +7,7 @@ from dbt.artifacts.resources.types import NodeType
 
 
 @dataclass
-class BaseResource(dbtClassMixin, Replaceable):
+class BaseResource(dbtClassMixin):
     name: str
     resource_type: NodeType
     package_name: str

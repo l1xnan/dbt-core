@@ -39,7 +39,6 @@ from dbt.contracts.graph.model_config import (
     EmptySnapshotConfig,
 )
 from dbt.contracts.graph.node_args import ModelNodeArgs
-from dbt.contracts.util import Replaceable
 from dbt_common.events.functions import warn_or_error
 from dbt.exceptions import ParsingError, ContractBreakingChangeError, ValidationError
 from dbt.events.types import (
@@ -201,9 +200,7 @@ class HasRelationMetadata(HasRelationMetadataResource):
 
 
 @dataclass
-class ParsedNodeMandatory(
-    ParsedNodeMandatoryResource, GraphNode, HasRelationMetadata, Replaceable
-):
+class ParsedNodeMandatory(ParsedNodeMandatoryResource, GraphNode, HasRelationMetadata):
     pass
 
 
@@ -1510,7 +1507,7 @@ class SavedQuery(NodeInfoMixin, GraphNode, SavedQueryResource):
 
 
 @dataclass
-class ParsedPatch(HasYamlMetadata, Replaceable):
+class ParsedPatch(HasYamlMetadata):
     name: str
     description: str
     meta: Dict[str, Any]

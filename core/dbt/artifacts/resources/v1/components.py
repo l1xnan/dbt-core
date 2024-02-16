@@ -8,7 +8,7 @@ from dbt_common.contracts.constraints import ColumnLevelConstraint
 from typing import Dict, List, Optional, Union, Any
 from datetime import timedelta
 from dbt.artifacts.resources.types import TimePeriod
-from dbt_common.contracts.util import Mergeable, Replaceable
+from dbt_common.contracts.util import Mergeable
 
 
 NodeVersion = Union[str, float]
@@ -128,7 +128,7 @@ class FreshnessThreshold(dbtClassMixin, Mergeable):
 
 
 @dataclass
-class HasRelationMetadata(dbtClassMixin, Replaceable):
+class HasRelationMetadata(dbtClassMixin):
     # Can't set database to None like it ought to be
     # because it messes up the subclasses and default parameters
     # so hack it here
