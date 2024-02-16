@@ -150,10 +150,14 @@ class TestUnitTestSnapshotDependency:
         results = run_dbt(["build"], expect_pass=False)
 
         for result in results:
-            if result.node.unique_id == "unit_test.test.customers.test_is_valid_email_address":
-                assert result.status == TestStatus.Pass
-            elif result.node.unique_id == "unit_test.test.customers.fail_is_valid_email_address":
+            if result.node.unique_id == "unit_test.test.customers.fail_is_valid_email_address":
+                # This will always fail, regarless of order executed
                 assert result.status == TestStatus.Fail
+            elif result.node.unique_id == "unit_test.test.customers.test_is_valid_email_address":
+                # there's no guarantee that the order of the results will be the same.  If the
+                # failed test runs first this one gets skipped.  If this runs first it passes.
+                assert result.status in [TestStatus.Pass, TestStatus.Skipped]
             elif result.node.unique_id == "model.test.customers":
+                # This is always skipped because one test always fails
                 assert result.status == RunStatus.Skipped
         assert len(results) == 6
