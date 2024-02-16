@@ -4,7 +4,6 @@ import time
 from dataclasses import dataclass, field
 import hashlib
 
-from abc import ABC
 from mashumaro.types import SerializableType
 from typing import (
     Optional,
@@ -14,10 +13,9 @@ from typing import (
     Any,
     Sequence,
     Tuple,
+    Type,
     Iterator,
     Literal,
-    Generic,
-    TypeVar,
 )
 
 from dbt import deprecations
@@ -25,10 +23,7 @@ from dbt_common.contracts.constraints import ConstraintType
 
 from dbt_common.clients.system import write_file
 from dbt.contracts.graph.unparsed import (
-    ExternalTable,
-    FreshnessThreshold,
     HasYamlMetadata,
-    Quoting,
     TestDef,
     UnparsedSourceDefinition,
     UnparsedSourceTableDefinition,
@@ -37,6 +32,11 @@ from dbt.contracts.graph.unparsed import (
     UnitTestInputFixture,
     UnitTestOutputFixture,
     UnitTestNodeVersions,
+)
+from dbt.contracts.graph.model_config import (
+    UnitTestNodeConfig,
+    UnitTestConfig,
+    EmptySnapshotConfig,
 )
 from dbt.contracts.graph.node_args import ModelNodeArgs
 from dbt.contracts.util import Replaceable
@@ -58,12 +58,6 @@ from dbt.node_types import (
     VERSIONED_NODE_TYPES,
 )
 
-from .model_config import (
-    SourceConfig,
-    EmptySnapshotConfig,
-    UnitTestConfig,
-    UnitTestNodeConfig,
-)
 
 from dbt.artifacts.resources import (
     BaseResource,
@@ -82,7 +76,7 @@ from dbt.artifacts.resources import (
     ParsedNodeMandatory as ParsedNodeMandatoryResource,
     ParsedNode as ParsedNodeResource,
     CompiledNode as CompiledNodeResource,
-    HasRelationMetadata,
+    HasRelationMetadata as HasRelationMetadataResource,
     FileHash,
     NodeConfig,
     ColumnInfo,
@@ -96,6 +90,8 @@ from dbt.artifacts.resources import (
     SingularTestNode as SingularTestNodeResource,
     GenericTestNode as GenericTestNodeResource,
     SnapshotNode as SnapshotNodeResource,
+    Quoting as QuotingResource,
+    SourceDefinition as SourceDefinitionResource,
 )
 
 # =====================================================================
@@ -121,12 +117,18 @@ from dbt.artifacts.resources import (
 # ==================================================
 
 
-ResourceTypeT = TypeVar("ResourceTypeT", bound="BaseResource")
-
-
 @dataclass
-class BaseNode(ABC, Generic[ResourceTypeT], BaseResource):
+class BaseNode(BaseResource):
     """All nodes or node-like objects in this file should have this as a base class"""
+
+    # In an ideal world this would be a class property. However, chaining @classmethod and
+    # @property was deprecated in python 3.11 and removed in 3.13. There are more
+    # complicated ways of making a class property, however a class method suits our
+    # purposes well enough
+    @classmethod
+    def resource_class(cls) -> Type[BaseResource]:
+        """Should be overriden by any class inheriting BaseNode"""
+        raise NotImplementedError
 
     @property
     def search_name(self):
@@ -165,12 +167,16 @@ class BaseNode(ABC, Generic[ResourceTypeT], BaseResource):
         return self.config.materialized
 
     @classmethod
-    def from_resource(cls, resource_instance: ResourceTypeT):
+    def from_resource(cls, resource_instance: BaseResource):
+        assert isinstance(resource_instance, cls.resource_class())
         return cls.from_dict(resource_instance.to_dict())
+
+    def to_resource(self):
+        return self.resource_class().from_dict(self.to_dict())
 
 
 @dataclass
-class GraphNode(GraphResource, BaseNode[ResourceTypeT], Generic[ResourceTypeT]):
+class GraphNode(GraphResource, BaseNode):
     """Nodes in the DAG. Macro and Documentation don't have fqn."""
 
     def same_fqn(self, other) -> bool:
@@ -178,8 +184,25 @@ class GraphNode(GraphResource, BaseNode[ResourceTypeT], Generic[ResourceTypeT]):
 
 
 @dataclass
+class HasRelationMetadata(HasRelationMetadataResource):
+    @classmethod
+    def __pre_deserialize__(cls, data):
+        data = super().__pre_deserialize__(data)
+        if "database" not in data:
+            data["database"] = None
+        return data
+
+    @property
+    def quoting_dict(self) -> Dict[str, bool]:
+        if hasattr(self, "quoting"):
+            return self.quoting.to_dict(omit_none=True)
+        else:
+            return {}
+
+
+@dataclass
 class ParsedNodeMandatory(
-    ParsedNodeMandatoryResource, GraphNode[GraphResource], HasRelationMetadata, Replaceable
+    ParsedNodeMandatoryResource, GraphNode, HasRelationMetadata, Replaceable
 ):
     pass
 
@@ -852,7 +875,7 @@ class GenericTestNode(GenericTestNodeResource, TestShouldStoreFailures, Compiled
 @dataclass
 class UnitTestSourceDefinition(ModelNode):
     source_name: str = "undefined"
-    quoting: Quoting = field(default_factory=Quoting)
+    quoting: QuotingResource = field(default_factory=QuotingResource)
 
     @property
     def search_name(self):
@@ -876,7 +899,7 @@ class UnitTestDefinitionMandatory:
 
 
 @dataclass
-class UnitTestDefinition(NodeInfoMixin, GraphNode[GraphResource], UnitTestDefinitionMandatory):
+class UnitTestDefinition(NodeInfoMixin, GraphNode, UnitTestDefinitionMandatory):
     description: str = ""
     overrides: Optional[UnitTestOverrides] = None
     depends_on: DependsOn = field(default_factory=DependsOn)
@@ -1098,35 +1121,15 @@ class UnpatchedSourceDefinition(BaseNode):
 
 
 @dataclass
-class ParsedSourceMandatory(GraphNode[GraphResource], HasRelationMetadata):
-    source_name: str
-    source_description: str
-    loader: str
-    identifier: str
-    resource_type: Literal[NodeType.Source]
-
-
-@dataclass
-class SourceDefinition(NodeInfoMixin, ParsedSourceMandatory):
-    quoting: Quoting = field(default_factory=Quoting)
-    loaded_at_field: Optional[str] = None
-    freshness: Optional[FreshnessThreshold] = None
-    external: Optional[ExternalTable] = None
-    description: str = ""
-    columns: Dict[str, ColumnInfo] = field(default_factory=dict)
-    meta: Dict[str, Any] = field(default_factory=dict)
-    source_meta: Dict[str, Any] = field(default_factory=dict)
-    tags: List[str] = field(default_factory=list)
-    config: SourceConfig = field(default_factory=SourceConfig)
-    patch_path: Optional[str] = None
-    unrendered_config: Dict[str, Any] = field(default_factory=dict)
-    relation_name: Optional[str] = None
-    created_at: float = field(default_factory=lambda: time.time())
-
-    def __post_serialize__(self, dct):
-        if "_event_status" in dct:
-            del dct["_event_status"]
-        return dct
+class SourceDefinition(
+    NodeInfoMixin,
+    GraphNode,
+    SourceDefinitionResource,
+    HasRelationMetadata,
+):
+    @classmethod
+    def resource_class(cls) -> Type[SourceDefinitionResource]:
+        return SourceDefinitionResource
 
     def same_database_representation(self, other: "SourceDefinition") -> bool:
         return (
@@ -1231,7 +1234,7 @@ class SourceDefinition(NodeInfoMixin, ParsedSourceMandatory):
 
 
 @dataclass
-class Exposure(GraphNode[ExposureResource], ExposureResource):
+class Exposure(GraphNode, ExposureResource):
     @property
     def depends_on_nodes(self):
         return self.depends_on.nodes
@@ -1239,6 +1242,10 @@ class Exposure(GraphNode[ExposureResource], ExposureResource):
     @property
     def search_name(self):
         return self.name
+
+    @classmethod
+    def resource_class(cls) -> Type[ExposureResource]:
+        return ExposureResource
 
     def same_depends_on(self, old: "Exposure") -> bool:
         return set(self.depends_on.nodes) == set(old.depends_on.nodes)
@@ -1297,7 +1304,7 @@ class Exposure(GraphNode[ExposureResource], ExposureResource):
 
 
 @dataclass
-class Metric(GraphNode[MetricResource], MetricResource):
+class Metric(GraphNode, MetricResource):
     @property
     def depends_on_nodes(self):
         return self.depends_on.nodes
@@ -1305,6 +1312,10 @@ class Metric(GraphNode[MetricResource], MetricResource):
     @property
     def search_name(self):
         return self.name
+
+    @classmethod
+    def resource_class(cls) -> Type[MetricResource]:
+        return MetricResource
 
     def same_description(self, old: "Metric") -> bool:
         return self.description == old.description
@@ -1355,7 +1366,9 @@ class Metric(GraphNode[MetricResource], MetricResource):
 
 @dataclass
 class Group(GroupResource, BaseNode):
-    pass
+    @classmethod
+    def resource_class(cls) -> Type[GroupResource]:
+        return GroupResource
 
 
 # ====================================
@@ -1364,7 +1377,7 @@ class Group(GroupResource, BaseNode):
 
 
 @dataclass
-class SemanticModel(GraphNode[SemanticModelResource], SemanticModelResource):
+class SemanticModel(GraphNode, SemanticModelResource):
     @property
     def depends_on_nodes(self):
         return self.depends_on.nodes
@@ -1372,6 +1385,10 @@ class SemanticModel(GraphNode[SemanticModelResource], SemanticModelResource):
     @property
     def depends_on_macros(self):
         return self.depends_on.macros
+
+    @classmethod
+    def resource_class(cls) -> Type[SemanticModelResource]:
+        return SemanticModelResource
 
     def same_model(self, old: "SemanticModel") -> bool:
         return self.model == old.model
@@ -1426,7 +1443,11 @@ class SemanticModel(GraphNode[SemanticModelResource], SemanticModelResource):
 
 
 @dataclass
-class SavedQuery(NodeInfoMixin, GraphNode[SavedQueryResource], SavedQueryResource):
+class SavedQuery(NodeInfoMixin, GraphNode, SavedQueryResource):
+    @classmethod
+    def resource_class(cls) -> Type[SavedQueryResource]:
+        return SavedQueryResource
+
     def same_metrics(self, old: "SavedQuery") -> bool:
         return self.query_params.metrics == old.query_params.metrics
 

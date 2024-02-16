@@ -13,6 +13,9 @@ from dbt.artifacts.resources.v1.components import (
     InjectedCTE,
     Contract,
     DeferRelation,
+    FreshnessThreshold,
+    Quoting,
+    Time,
 )
 from dbt.artifacts.resources.v1.manifest_nodes import (
     AnalysisNode,
@@ -80,4 +83,12 @@ from dbt.artifacts.resources.v1.config import (
     SeedConfig,
     TestConfig,
     SnapshotConfig,
+    SourceConfig,
+)
+
+from dbt.artifacts.resources.v1.source_definition import (
+    ExternalPartition,
+    ExternalTable,
+    SourceDefinition,
+    ParsedSourceMandatory,
 )

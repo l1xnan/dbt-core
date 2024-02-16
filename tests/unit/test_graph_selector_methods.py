@@ -20,12 +20,12 @@ from dbt.contracts.graph.nodes import (
     SingularTestNode,
     GenericTestNode,
     SourceDefinition,
-    ColumnInfo,
     AccessType,
     UnitTestDefinition,
 )
 from dbt.contracts.graph.manifest import Manifest, ManifestMetadata
 from dbt.artifacts.resources import (
+    ColumnInfo,
     ExposureType,
     MetricInputMeasure,
     MetricTypeParams,

@@ -59,3 +59,12 @@ class ModelLanguage(StrEnum):
 class ModelHookType(StrEnum):
     PreHook = "pre-hook"
     PostHook = "post-hook"
+
+
+class TimePeriod(StrEnum):
+    minute = "minute"
+    hour = "hour"
+    day = "day"
+
+    def plural(self) -> str:
+        return str(self) + "s"

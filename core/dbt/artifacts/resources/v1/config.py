@@ -155,6 +155,11 @@ class NodeConfig(NodeAndTestConfig):
 
 
 @dataclass
+class SourceConfig(BaseConfig):
+    enabled: bool = True
+
+
+@dataclass
 class ModelConfig(NodeConfig):
     access: AccessType = field(
         default=AccessType.Protected,

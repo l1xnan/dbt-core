@@ -10,6 +10,7 @@ from dbt.artifacts.resources import (
     SeedConfig,
     TestConfig,
     SnapshotConfig,
+    SourceConfig,
 )
 from dbt_common.contracts.config.base import BaseConfig, MergeBehavior, CompareBehavior
 from dbt_common.contracts.config.metadata import Metadata, ShowBehavior
@@ -39,11 +40,6 @@ class Hook(dbtClassMixin, Replaceable):
     sql: str
     transaction: bool = True
     index: Optional[int] = None
-
-
-@dataclass
-class SourceConfig(BaseConfig):
-    enabled: bool = True
 
 
 @dataclass
