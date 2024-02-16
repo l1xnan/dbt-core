@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 from dbt_common.dataclass_schema import dbtClassMixin
 from dbt.artifacts.resources.v1.components import (
-    ParsedNode,
-    CompiledNode,
+    ParsedResource,
+    CompiledResource,
     NodeVersion,
     DeferRelation,
     MacroDependsOn,
@@ -15,18 +15,18 @@ from datetime import datetime
 
 
 @dataclass
-class Analysis(CompiledNode):
+class Analysis(CompiledResource):
     resource_type: Literal[NodeType.Analysis]
 
 
 @dataclass
-class HookNode(CompiledNode):
+class HookNode(CompiledResource):
     resource_type: Literal[NodeType.Operation]
     index: Optional[int] = None
 
 
 @dataclass
-class Model(CompiledNode):
+class Model(CompiledResource):
     resource_type: Literal[NodeType.Model]
     access: AccessType = AccessType.Protected
     config: ModelConfig = field(default_factory=ModelConfig)
@@ -38,12 +38,12 @@ class Model(CompiledNode):
 
 
 @dataclass
-class SqlOperation(CompiledNode):
+class SqlOperation(CompiledResource):
     resource_type: Literal[NodeType.SqlOperation]
 
 
 @dataclass
-class Seed(ParsedNode):  # No SQLDefaults!
+class Seed(ParsedResource):  # No SQLDefaults!
     resource_type: Literal[NodeType.Seed]
     config: SeedConfig = field(default_factory=SeedConfig)
     # seeds need the root_path because the contents are not loaded initially
@@ -54,7 +54,7 @@ class Seed(ParsedNode):  # No SQLDefaults!
 
 
 @dataclass
-class SingularTest(CompiledNode):
+class SingularTest(CompiledResource):
     resource_type: Literal[NodeType.Test]
     # Was not able to make mypy happy and keep the code working. We need to
     # refactor the various configs.
@@ -74,7 +74,7 @@ class TestMetadata(dbtClassMixin):
 
 
 @dataclass
-class GenericTest(CompiledNode):
+class GenericTest(CompiledResource):
     resource_type: Literal[NodeType.Test]
     column_name: Optional[str] = None
     file_key_name: Optional[str] = None
@@ -86,7 +86,7 @@ class GenericTest(CompiledNode):
 
 
 @dataclass
-class Snapshot(CompiledNode):
+class Snapshot(CompiledResource):
     resource_type: Literal[NodeType.Snapshot]
     config: SnapshotConfig
     defer_relation: Optional[DeferRelation] = None

@@ -147,7 +147,7 @@ class DeferRelation(HasRelationMetadata):
 
 
 @dataclass
-class ParsedNodeMandatory(GraphResource, HasRelationMetadata):
+class ParsedResourceMandatory(GraphResource, HasRelationMetadata):
     alias: str
     checksum: FileHash
     config: NodeConfig = field(default_factory=NodeConfig)
@@ -158,7 +158,7 @@ class ParsedNodeMandatory(GraphResource, HasRelationMetadata):
 
 
 @dataclass
-class ParsedNode(ParsedNodeMandatory):
+class ParsedResource(ParsedResourceMandatory):
     tags: List[str] = field(default_factory=list)
     description: str = field(default="")
     columns: Dict[str, ColumnInfo] = field(default_factory=dict)
@@ -176,7 +176,7 @@ class ParsedNode(ParsedNodeMandatory):
 
 
 @dataclass
-class CompiledNode(ParsedNode):
+class CompiledResource(ParsedResource):
     """Contains attributes necessary for SQL files and nodes with refs, sources, etc,
     so all ManifestNodes except SeedNode."""
 

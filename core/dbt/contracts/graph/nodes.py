@@ -72,9 +72,9 @@ from dbt.artifacts.resources import (
     GraphResource,
     SavedQuery as SavedQueryResource,
     SemanticModel as SemanticModelResource,
-    ParsedNodeMandatory as ParsedNodeMandatoryResource,
-    ParsedNode as ParsedNodeResource,
-    CompiledNode as CompiledNodeResource,
+    ParsedResourceMandatory,
+    ParsedResource,
+    CompiledResource,
     HasRelationMetadata as HasRelationMetadataResource,
     FileHash,
     NodeConfig,
@@ -200,7 +200,7 @@ class HasRelationMetadata(HasRelationMetadataResource):
 
 
 @dataclass
-class ParsedNodeMandatory(ParsedNodeMandatoryResource, GraphNode, HasRelationMetadata):
+class ParsedNodeMandatory(ParsedResourceMandatory, GraphNode, HasRelationMetadata):
     pass
 
 
@@ -242,7 +242,7 @@ class NodeInfoMixin:
 
 
 @dataclass
-class ParsedNode(ParsedNodeResource, NodeInfoMixin, ParsedNodeMandatory, SerializableType):
+class ParsedNode(ParsedResource, NodeInfoMixin, ParsedNodeMandatory, SerializableType):
     def get_target_write_path(self, target_path: str, subdirectory: str):
         # This is called for both the "compiled" subdirectory of "target" and the "run" subdirectory
         if os.path.basename(self.path) == os.path.basename(self.original_file_path):
@@ -379,7 +379,7 @@ class ParsedNode(ParsedNodeResource, NodeInfoMixin, ParsedNodeMandatory, Seriali
 
 
 @dataclass
-class CompiledNode(CompiledNodeResource, ParsedNode):
+class CompiledNode(CompiledResource, ParsedNode):
     """Contains attributes necessary for SQL files and nodes with refs, sources, etc,
     so all ManifestNodes except SeedNode."""
 
