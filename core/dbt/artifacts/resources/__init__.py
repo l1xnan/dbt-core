@@ -18,15 +18,15 @@ from dbt.artifacts.resources.v1.components import (
     Time,
 )
 from dbt.artifacts.resources.v1.manifest_nodes import (
-    AnalysisNode,
+    Analysis,
     HookNode,
-    ModelNode,
-    SqlNode,
-    SeedNode,
-    SingularTestNode,
+    Model,
+    SqlOperation,
+    Seed,
+    SingularTest,
     TestMetadata,
-    GenericTestNode,
-    SnapshotNode,
+    GenericTest,
+    Snapshot,
 )
 from dbt.artifacts.resources.v1.documentation import Documentation
 from dbt.artifacts.resources.v1.exposure import (

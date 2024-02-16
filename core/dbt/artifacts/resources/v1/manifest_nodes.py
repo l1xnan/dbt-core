@@ -15,7 +15,7 @@ from datetime import datetime
 
 
 @dataclass
-class AnalysisNode(CompiledNode):
+class Analysis(CompiledNode):
     resource_type: Literal[NodeType.Analysis]
 
 
@@ -26,7 +26,7 @@ class HookNode(CompiledNode):
 
 
 @dataclass
-class ModelNode(CompiledNode):
+class Model(CompiledNode):
     resource_type: Literal[NodeType.Model]
     access: AccessType = AccessType.Protected
     config: ModelConfig = field(default_factory=ModelConfig)
@@ -38,12 +38,12 @@ class ModelNode(CompiledNode):
 
 
 @dataclass
-class SqlNode(CompiledNode):
+class SqlOperation(CompiledNode):
     resource_type: Literal[NodeType.SqlOperation]
 
 
 @dataclass
-class SeedNode(ParsedNode):  # No SQLDefaults!
+class Seed(ParsedNode):  # No SQLDefaults!
     resource_type: Literal[NodeType.Seed]
     config: SeedConfig = field(default_factory=SeedConfig)
     # seeds need the root_path because the contents are not loaded initially
@@ -54,7 +54,7 @@ class SeedNode(ParsedNode):  # No SQLDefaults!
 
 
 @dataclass
-class SingularTestNode(CompiledNode):
+class SingularTest(CompiledNode):
     resource_type: Literal[NodeType.Test]
     # Was not able to make mypy happy and keep the code working. We need to
     # refactor the various configs.
@@ -74,7 +74,7 @@ class TestMetadata(dbtClassMixin):
 
 
 @dataclass
-class GenericTestNode(CompiledNode):
+class GenericTest(CompiledNode):
     resource_type: Literal[NodeType.Test]
     column_name: Optional[str] = None
     file_key_name: Optional[str] = None
@@ -86,7 +86,7 @@ class GenericTestNode(CompiledNode):
 
 
 @dataclass
-class SnapshotNode(CompiledNode):
+class Snapshot(CompiledNode):
     resource_type: Literal[NodeType.Snapshot]
     config: SnapshotConfig
     defer_relation: Optional[DeferRelation] = None

@@ -80,15 +80,15 @@ from dbt.artifacts.resources import (
     NodeConfig,
     ColumnInfo,
     InjectedCTE,
-    AnalysisNode as AnalysisNodeResource,
+    Analysis as AnalysisResource,
     HookNode as HookNodeResource,
-    ModelNode as ModelNodeResource,
+    Model as ModelResource,
     ModelConfig,
-    SqlNode as SqlNodeResource,
-    SeedNode as SeedNodeResource,
-    SingularTestNode as SingularTestNodeResource,
-    GenericTestNode as GenericTestNodeResource,
-    SnapshotNode as SnapshotNodeResource,
+    SqlOperation as SqlOperationResource,
+    Seed as SeedResource,
+    SingularTest as SingularTestResource,
+    GenericTest as GenericTestResource,
+    Snapshot as SnapshotResource,
     Quoting as QuotingResource,
     SourceDefinition as SourceDefinitionResource,
 )
@@ -429,7 +429,7 @@ class CompiledNode(CompiledNodeResource, ParsedNode):
 
 
 @dataclass
-class AnalysisNode(AnalysisNodeResource, CompiledNode):
+class AnalysisNode(AnalysisResource, CompiledNode):
     pass
 
 
@@ -439,7 +439,7 @@ class HookNode(HookNodeResource, CompiledNode):
 
 
 @dataclass
-class ModelNode(ModelNodeResource, CompiledNode):
+class ModelNode(ModelResource, CompiledNode):
     @classmethod
     def from_args(cls, args: ModelNodeArgs) -> "ModelNode":
         unique_id = args.unique_id
@@ -717,7 +717,7 @@ class ModelNode(ModelNodeResource, CompiledNode):
 
 
 @dataclass
-class SqlNode(SqlNodeResource, CompiledNode):
+class SqlNode(SqlOperationResource, CompiledNode):
     pass
 
 
@@ -727,7 +727,7 @@ class SqlNode(SqlNodeResource, CompiledNode):
 
 
 @dataclass
-class SeedNode(SeedNodeResource, ParsedNode):  # No SQLDefaults!
+class SeedNode(SeedResource, ParsedNode):  # No SQLDefaults!
     def same_seeds(self, other: "SeedNode") -> bool:
         # for seeds, we check the hashes. If the hashes are different types,
         # no match. If the hashes are both the same 'path', log a warning and
@@ -845,7 +845,7 @@ class TestShouldStoreFailures:
 
 
 @dataclass
-class SingularTestNode(SingularTestNodeResource, TestShouldStoreFailures, CompiledNode):
+class SingularTestNode(SingularTestResource, TestShouldStoreFailures, CompiledNode):
     @property
     def test_node_type(self):
         return "singular"
@@ -857,7 +857,7 @@ class SingularTestNode(SingularTestNodeResource, TestShouldStoreFailures, Compil
 
 
 @dataclass
-class GenericTestNode(GenericTestNodeResource, TestShouldStoreFailures, CompiledNode):
+class GenericTestNode(GenericTestResource, TestShouldStoreFailures, CompiledNode):
     def same_contents(self, other, adapter_type: Optional[str]) -> bool:
         if other is None:
             return False
@@ -976,7 +976,7 @@ class IntermediateSnapshotNode(CompiledNode):
 
 
 @dataclass
-class SnapshotNode(SnapshotNodeResource, CompiledNode):
+class SnapshotNode(SnapshotResource, CompiledNode):
     pass
 
 
