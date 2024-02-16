@@ -11,13 +11,11 @@ from dbt.artifacts.resources import (
     TestConfig,
     SnapshotConfig,
     SourceConfig,
+    ModelConfig,
 )
 from dbt_common.contracts.config.base import BaseConfig, MergeBehavior, CompareBehavior
 from dbt_common.contracts.config.metadata import Metadata, ShowBehavior
-from dbt_common.dataclass_schema import (
-    dbtClassMixin,
-)
-from dbt.contracts.util import Replaceable, list_str
+from dbt.contracts.util import list_str
 from dbt.node_types import NodeType
 
 
@@ -33,13 +31,6 @@ def insensitive_patterns(*patterns: str):
     for pattern in patterns:
         lowercased.append("".join("[{}{}]".format(s.upper(), s.lower()) for s in pattern))
     return "^({})$".format("|".join(lowercased))
-
-
-@dataclass
-class Hook(dbtClassMixin, Replaceable):
-    sql: str
-    transaction: bool = True
-    index: Optional[int] = None
 
 
 @dataclass
@@ -73,7 +64,7 @@ RESOURCE_TYPES: Dict[NodeType, Type[BaseConfig]] = {
     NodeType.Source: SourceConfig,
     NodeType.Seed: SeedConfig,
     NodeType.Test: TestConfig,
-    NodeType.Model: NodeConfig,
+    NodeType.Model: ModelConfig,
     NodeType.Snapshot: SnapshotConfig,
     NodeType.Unit: UnitTestConfig,
 }

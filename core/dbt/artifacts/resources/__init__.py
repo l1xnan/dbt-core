@@ -84,6 +84,7 @@ from dbt.artifacts.resources.v1.config import (
     TestConfig,
     SnapshotConfig,
     SourceConfig,
+    Hook,
 )
 
 from dbt.artifacts.resources.v1.source_definition import (

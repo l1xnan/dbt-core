@@ -22,18 +22,18 @@ from dbt.artifacts.resources import (
     TestMetadata,
     SourceConfig,
     Time,
+    Hook,
 )
 from dbt.artifacts.resources.types import TimePeriod
 from dbt.node_types import NodeType, AccessType
 from dbt.contracts.files import FileHash
-from dbt.artifacts.resources import ModelConfig
 from dbt.contracts.graph.model_config import (
     NodeConfig,
     SeedConfig,
     TestConfig,
     SnapshotConfig,
     EmptySnapshotConfig,
-    Hook,
+    ModelConfig,
 )
 from dbt.contracts.graph.nodes import (
     ModelNode,
