@@ -32,8 +32,6 @@ from dbt.events.types import (
     ProjectCreated,
 )
 
-from dbt.include.starter_project import PACKAGE_PATH as starter_project_directory
-
 from dbt.include.global_project import PROJECT_NAME as GLOBAL_PROJECT_NAME
 
 from dbt.task.base import BaseTask, move_to_nearest_project_dir
@@ -44,6 +42,9 @@ SLACK_URL = "https://community.getdbt.com/"
 # This file is not needed for the starter project but exists for finding the resource path
 IGNORE_FILES = ["__init__.py", "__pycache__"]
 
+# The `dbt.include.starter_project` cannot be imported when dbt-core is installed
+# in editable mode in Python 3.12, it conflicts with dbt-adapters
+starter_project_directory = str(Path(__file__).joinpath("../../include/starter_project").resolve())
 
 # https://click.palletsprojects.com/en/8.0.x/api/#types
 # click v7.0 has UNPROCESSED, STRING, INT, FLOAT, BOOL, and UUID available.
